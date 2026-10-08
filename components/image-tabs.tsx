@@ -1,10 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 export default function ImageTabs() {
   const [activeTab, setActiveTab] = useState("organize"); //organize, hired, boards

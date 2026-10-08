@@ -11,10 +11,11 @@ import {
 import { signUp } from "@/lib/auth/auth-client";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function SignUp() {
   const [name, setName] = useState("");
