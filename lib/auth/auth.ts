@@ -2,17 +2,12 @@ import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { mongoClient, mongoDb } from "../mongodb";
 import { initializeUserBoard } from "../init-user-board";
-import connectDB from "../db";
-
-const mongooseInstance = await connectDB();
-const client = mongooseInstance.connection.getClient();
-const db = client.db();
-
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db, {
-    client,
+  database: mongodbAdapter(mongoDb, {
+    client: mongoClient,
   }),
 
   session: {
@@ -30,8 +25,13 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          if (user.id) {
-            await initializeUserBoard(user.id);
+          const userId = user.id || (user as any)._id?.toString();
+          if (userId) {
+            try {
+              await initializeUserBoard(userId);
+            } catch (error) {
+              console.error("Board initialization failed:", error);
+            }
           }
         },
       },
@@ -39,24 +39,18 @@ export const auth = betterAuth({
   },
 });
 
-
-
 export async function getSession() {
   const result = await auth.api.getSession({
     headers: await headers(),
   });
 
-
-
   return result;
 }
-
 
 export async function signOut() {
   const result = await auth.api.signOut({
     headers: await headers(),
   });
-
 
   if (result.success) {
     redirect("/sign-in");
