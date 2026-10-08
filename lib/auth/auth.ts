@@ -6,8 +6,8 @@ import { mongoClient, mongoDb } from "../mongodb";
 import { initializeUserBoard } from "../init-user-board";
 
 export const auth = betterAuth({
-  database: mongodbAdapter(mongoDb, {
-    client: mongoClient,
+  database: mongodbAdapter(mongoDb as any, {
+    client: mongoClient as any,
   }),
 
   session: {
