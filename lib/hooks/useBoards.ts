@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Board, Column, JobApplication } from "../models/models.types";
 import { updateJobApplication } from "../actions/job-applications";
+import { Board, Column, JobApplication } from "../models/models.types";
 
 export function useBoard(initialBoard?: Board | null) {
   const [board, setBoard] = useState<Board | null>(initialBoard || null);
-  const [columns, setColumns] = useState<Column[]>(initialBoard?.columns || []);
   const [error, setError] = useState<string | null>(null);
+  const [columns, setColumns] = useState<Column[]>(initialBoard?.columns || []);
+
 
   useEffect(() => {
     if (initialBoard) {
@@ -16,11 +17,14 @@ export function useBoard(initialBoard?: Board | null) {
     }
   }, [initialBoard]);
 
+
   async function moveJob(
     jobApplicationId: string,
     newColumnId: string,
     newOrder: number
   ) {
+
+
     setColumns((prev) => {
       const newColumns = prev.map((col) => ({
         ...col,
@@ -32,17 +36,21 @@ export function useBoard(initialBoard?: Board | null) {
       let jobToMove: JobApplication | null = null;
       let oldColumnId: string | null = null;
 
+
       for (const col of newColumns) {
         const jobIndex = col.jobApplications.findIndex(
           (j) => j._id === jobApplicationId
         );
+
         if (jobIndex !== -1 && jobIndex !== undefined) {
           jobToMove = col.jobApplications[jobIndex];
           oldColumnId = col._id;
           col.jobApplications = col.jobApplications.filter(
             (job) => job._id !== jobApplicationId
           );
+
           break;
+
         }
       }
 
@@ -50,6 +58,7 @@ export function useBoard(initialBoard?: Board | null) {
         const targetColumnIndex = newColumns.findIndex(
           (col) => col._id === newColumnId
         );
+
         if (targetColumnIndex !== -1) {
           const targetColumn = newColumns[targetColumnIndex];
           const currentJobs = targetColumn.jobApplications || [];
@@ -66,6 +75,8 @@ export function useBoard(initialBoard?: Board | null) {
             order: idx * 100,
           }));
 
+
+
           newColumns[targetColumnIndex] = {
             ...targetColumn,
             jobApplications: jobsWithUpdatedOrders,
@@ -81,6 +92,7 @@ export function useBoard(initialBoard?: Board | null) {
         columnId: newColumnId,
         order: newOrder,
       });
+
     } catch (err) {
       console.error("Error", err);
     }
