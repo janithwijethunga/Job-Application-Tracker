@@ -83,7 +83,7 @@ The application uses three main models with relationships:
 
 **Board Model** (`board.ts`):
 
-- Represents a user's job hunt board
+- Represents a user's Jobright board
 - Contains references to columns
 - One board per user
 
@@ -210,7 +210,7 @@ Server component that:
 **Data Fetching Pattern:**
 
 ```typescript
-const boardDoc = await Board.findOne({ userId, name: "Job Hunt" }).populate({
+const boardDoc = await Board.findOne({ userId, name: "Jobright" }).populate({
   path: "columns",
   populate: { path: "jobApplications" },
 });

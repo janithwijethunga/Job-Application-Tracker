@@ -6,6 +6,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import hero1 from "@/public/hero-images/hero1.png";
+import hero2 from "@/public/hero-images/hero2.png";
+import hero3 from "@/public/hero-images/hero3.png";
 
 export default function ImageTabs() {
   const [activeTab, setActiveTab] = useState("organize"); //organize, hired, boards
@@ -37,7 +40,7 @@ export default function ImageTabs() {
           <div className="relative mx-auto max-w-5xl overflow-hidden rounded-lg border border-gray-200 shadow-xl">
             {activeTab === "organize" && (
               <Image
-                src="/hero-images/hero1.png"
+                src={hero1}
                 alt="Organize Applications"
                 width={1200}
                 height={800}
@@ -46,7 +49,7 @@ export default function ImageTabs() {
 
             {activeTab === "hired" && (
               <Image
-                src="/hero-images/hero2.png"
+                src={hero2}
                 alt="Organize Applications"
                 width={1200}
                 height={800}
@@ -55,7 +58,7 @@ export default function ImageTabs() {
 
             {activeTab === "boards" && (
               <Image
-                src="/hero-images/hero3.png"
+                src={hero3}
                 alt="Organize Applications"
                 width={1200}
                 height={800}

@@ -31,7 +31,7 @@ export default function Navbar() {
           className="flex items-center gap-2 text-xl font-semibold text-primary"
         >
           <Briefcase className="h-5 w-5" />
-          Job Tracker
+          Jobright
         </Link>
 
         {/* Auth Navigation */}
