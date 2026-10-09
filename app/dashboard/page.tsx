@@ -64,7 +64,7 @@ async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/60 pb-16 dark:bg-neutral-950 font-sans antialiased selection:bg-primary selection:text-primary-foreground">
-      <div className="container mx-auto pt-8">
+      <div className="container max-w-7xl mx-auto pt-8">
         {/* Top Header Section */}
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>

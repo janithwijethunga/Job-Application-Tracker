@@ -7,12 +7,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import SignOutButton from "./ui/sign-out-btn";
 import { useSession } from "@/lib/auth/auth-client";
+import { User } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -24,7 +26,7 @@ export default function Navbar() {
 
   return (
     <nav className="border-b border-gray-200 bg-white">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-16 items-center justify-between max-w-7xl">
         {/* Logo */}
         <Link
           href="/"
@@ -76,6 +78,21 @@ export default function Navbar() {
                       </div>
                     </DropdownMenuLabel>
                   </DropdownMenuGroup>
+
+                  <div className="my-1 h-px bg-slate-200 dark:bg-neutral-800" />
+
+                  {/* Added Link to Profile */}
+                  <DropdownMenuItem>
+                    <Link
+                      href="/profile"
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <User className="h-4 w-4" />
+                      <span>Profile Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <div className="my-1 h-px bg-slate-200 dark:bg-neutral-800" />
 
                   <SignOutButton />
                 </DropdownMenuContent>
