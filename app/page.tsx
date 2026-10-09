@@ -24,7 +24,7 @@ export default function Home() {
         <section className="relative overflow-hidden pt-24 pb-20 md:pt-32 md:pb-28">
           {/* Subtle Ambient Glow */}
           <div className="pointer-events-none absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
-            <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-blue-400 to-indigo-300 opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" />
+            <div className="relative left-[calc(50%-11rem)] aspect-1155/678 w-144.5 -translate-x-1/2 rotate-30 bg-linear-to-tr from-blue-400 to-indigo-300 opacity-20 sm:left-[calc(50%-30rem)] sm:w-288.75" />
           </div>
 
           <div className="container mx-auto px-4">
@@ -39,7 +39,7 @@ export default function Home() {
               {/* Main Headline */}
               <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl sm:leading-[1.15]">
                 Land your dream job{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-primary to-[#af5cf6] bg-clip-text text-transparent">
                   without the chaos
                 </span>
               </h1>
@@ -53,7 +53,7 @@ export default function Home() {
                 <Link href="/sign-up">
                   <Button
                     size="lg"
-                    className="h-12 rounded-xl bg-blue-600 px-8 text-base font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30"
+                    className="h-12 rounded-xl bg-primary px-8 text-base font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30"
                   >
                     Start Free Forever
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -120,7 +120,7 @@ export default function Home() {
                 </p>
               </div>
               <div>
-                <p className="text-3xl font-extrabold tracking-tight text-blue-600 sm:text-4xl">
+                <p className="text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">
                   3.5x
                 </p>
                 <p className="mt-1 text-xs font-medium text-slate-500 uppercase tracking-wider">
@@ -297,9 +297,9 @@ export default function Home() {
         </section>
 
         {/* CTA Banner */}
-        <section className="bg-gradient-to-b from-white to-slate-100 py-20">
+        <section className="bg-linear-to-b from-white to-slate-100 py-20">
           <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-4xl rounded-3xl bg-blue-600 px-8 py-16 text-center text-white shadow-xl shadow-blue-500/10 sm:px-16">
+            <div className="mx-auto max-w-4xl rounded-3xl bg-primary px-8 py-16 text-center text-white shadow-xl shadow-blue-500/10 sm:px-16">
               <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
                 Ready to organize your career search?
               </h2>

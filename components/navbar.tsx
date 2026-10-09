@@ -1,7 +1,7 @@
 "use client";
 
-import { Briefcase } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image"; // 1. Import Next.js Image
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -28,9 +28,16 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 text-xl font-semibold text-primary"
+          className="flex items-center gap-2.5 text-xl font-bold tracking-tight text-primary"
         >
-          <Briefcase className="h-5 w-5" />
+          {/* 2. Render using the Image component */}
+          <Image
+            src="/hero-images/logo.png"
+            alt="Jobright Logo"
+            width={28}
+            height={28}
+            className="h-7 w-7 object-contain"
+          />
           Jobright
         </Link>
 
