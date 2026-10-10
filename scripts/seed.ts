@@ -138,6 +138,7 @@ const SAMPLE_JOBS = [
     description: "Manage product testing and quality assurance",
     jobUrl: "https://example.com/jobs/14",
     salary: "$75k - $90k",
+    
   },
   {
     company: "TOG London",

@@ -133,15 +133,21 @@ export async function uploadCVAction(formData: FormData) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const sizeInMb = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
-    const fileName = `cv_${session.user.id}_${Date.now()}`;
+
+    // Extract original extension (e.g., "pdf" or "docx")
+    const extension = file.name.split(".").pop() || "pdf";
+
+    // For raw resources, include the extension directly in the public ID
+    const fileName = `cv_${session.user.id}_${Date.now()}.${extension}`;
 
     const uploadResult: any = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
-          folder: "jobright/cvs", // Targets the jobright/cvs folder
+          folder: "jobright/cvs",
           public_id: fileName,
-          resource_type: "raw", // Keeps PDF / DOCX binary intact
-          format: file.name.split(".").pop(),
+          resource_type: "raw",
+          type: "upload",
+          access_mode: "public",
         },
         (error, result) => {
           if (error) reject(error);
@@ -155,7 +161,7 @@ export async function uploadCVAction(formData: FormData) {
       name: file.name,
       size: sizeInMb,
       url: uploadResult.secure_url,
-      publicId: uploadResult.public_id, // "jobright/cvs/cv_..."
+      publicId: uploadResult.public_id,
       uploadedAt: new Date(),
     };
 

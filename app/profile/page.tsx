@@ -118,6 +118,7 @@ export default function ProfilePage() {
     setIsUploadingAvatar(false);
     if (avatarInputRef.current) avatarInputRef.current.value = "";
   }
+  
 
   // Update Name
   async function handleSave(e: React.FormEvent) {
@@ -195,7 +196,8 @@ export default function ProfilePage() {
   const jobPortals = [
     {
       name: "LinkedIn Jobs",
-      description: "Direct outreach, recruiter inboxes, and professional networking",
+      description:
+        "Direct outreach, recruiter inboxes, and professional networking",
       url: "https://www.linkedin.com/jobs",
       badge: "Networking",
     },
@@ -420,19 +422,16 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button
-                    
-                    className="h-9 flex-1 gap-1.5 rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90"
-                  >
+                  <Button className="h-9 flex-1 gap-1.5 rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90">
                     <a
                       href={cvFile.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       download={cvFile.name}
                     >
-                      <Download className="h-3.5 w-3.5" />
                       Download Stored CV
                     </a>
+                    <Download className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="outline"
