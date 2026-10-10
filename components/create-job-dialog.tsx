@@ -67,14 +67,9 @@ export default function CreateJobApplicationDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button
-          variant="outline"
-          className="w-full mb-4 justify-start text-muted-foreground border-dashed border-2 hover:border-solid hover:bg-muted/50"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Job
-        </Button>
+      <DialogTrigger className="inline-flex w-full mb-4 items-center justify-start rounded-lg border-2 border-dashed border-input bg-background px-4 py-2 text-sm font-medium text-muted-foreground shadow-xs transition-colors hover:border-solid hover:bg-muted/50 hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+        <Plus className="mr-2 h-4 w-4" />
+        Add Job
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>

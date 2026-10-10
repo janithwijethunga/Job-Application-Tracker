@@ -39,7 +39,11 @@ export default function SignIn() {
       const result = await signIn.email({
         email,
         password,
-      });
+      }
+    );
+    console.log("Sign In Result:", result);
+
+      
 
       if (result.error) {
         setError(result.error.message ?? "Sign In Failed!");

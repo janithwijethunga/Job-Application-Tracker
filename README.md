@@ -1,341 +1,211 @@
-# Job Application Tracker
+# 💼 Jobright — Production Job Application Tracker & Pipeline Manager
 
-A full-stack job application tracking system built with Next.js, featuring a Kanban board interface for managing your job search. This project is part of a YouTube tutorial series The link is below.
+A high-performance, full-stack job application tracking platform built with **Next.js 16 (App Router)**, **React 19**, **Tailwind CSS 4**, and **MongoDB**. Featuring an interactive Kanban interface with real-time drag-and-drop, secure authentication via Better-Auth, Cloudinary-backed document and media management with automatic legacy file cleanup, automated database seeding, and performance-tuned Server Actions.
 
-https://youtu.be/vCIsrOGNhas?si=BuLpJRKIE-ehgjBE
+Inspired by the [NextJS Full Course Tutorial by PedroTech](https://youtu.be/vCIsrOGNhas) and extended with enterprise cloud storage, strict cookie-size sanitization, client-side hydration guards, and production database patterns.
 
+---
 
-## 🎥 Tutorial
+## 🌟 Key Features
 
-This project from a YouTube tutorial series. Follow along to learn how to build a complete job application tracker with authentication, drag-and-drop functionality, and real-time updates.
+- **Interactive Kanban Pipeline**: Drag and drop applications across customizable workflow stages (*Wish List*, *Applied*, *Interviewing*, *Offer*, *Rejected*) powered by `@dnd-kit` with collision detection algorithms and smooth drag overlays.
+- **Enterprise Cloud Storage (Cloudinary)**:
+  - **Avatars**: Automated face-detection centering, smart cropping, WebP conversion, and **automatic deletion of previous avatar assets** from Cloudinary (`jobright/avatars`) upon replacement to eliminate orphan files.
+  - **Curriculum Vitae (CV) Vault**: Direct server-action streaming of raw PDF/DOCX documents to Cloudinary (`jobright/cvs`), with metadata stored in MongoDB and instant one-click download/delete support.
+- **Robust Authentication**: Configured with **Better-Auth** using MongoDB native adapters, database lifecycle hooks for auto-provisioning pipelines, and cross-origin security (`trustedOrigins`).
+- **Comprehensive Database Seeding**: Automated script that maps realistic sample applications directly to any user account's default board structure across all stages.
+- **Performance & Scalability Guardrails**:
+  - **Decoupled Binary Storage**: Zero Base64 bloat stored in MongoDB user documents, preventing session cookie overflow and eliminating slow Time To First Byte (TTFB).
+  - **Connection Pooling**: Global caching of Mongoose and native MongoDB client instances to prevent connection spikes during hot reloads.
+  - **SSR Hydration Resilient**: Clean primitive nesting (preventing nested `<button>` runtime DOM warnings) and hydration suppression for third-party browser extensions (Grammarly).
+  - **Dynamic Route Fetching**: Direct server-side request evaluation (`await headers()`) ensuring real-time dashboard data synchronization without serving stale pre-rendered caches.
+- **Pipeline Analytics**: Real-time statistical header computing total job applications, active interview stages, landed offers, and pipeline conversion rates.
+- **Curated Career Launchpad**: Quick-access shortcuts to major hiring platforms (LinkedIn, Wellfound, Indeed, RemoteOK).
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **UI Library**: React 19
-- **Styling**: Tailwind CSS 4
-- **Database**: MongoDB with Mongoose
-- **Authentication**: Better Auth
-- **Drag & Drop**: dnd-kit
-- **UI Components**: Radix UI
-- **Icons**: Lucide React
+| Layer | Technologies |
+| :--- | :--- |
+| **Framework** | Next.js 16+ (App Router, Server Components & Server Actions) |
+| **Language** | TypeScript |
+| **Frontend & UI** | React 19, Tailwind CSS 4, Radix UI Primitives, Lucide React |
+| **Drag & Drop** | `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` |
+| **Database** | MongoDB Atlas via native `mongodb` driver & Mongoose ODM |
+| **Authentication** | Better-Auth (MongoDB Adapter) |
+| **Media & File Storage** | Cloudinary SDK (Image Transformations & Raw Binary Deliveries) |
+
+---
+
+## 📁 Project Structure
+
+```text
+job-application-tracker/
+├── app/
+│   ├── (auth)/
+│   │   ├── sign-in/page.tsx         # User authentication login
+│   │   └── sign-up/page.tsx         # User registration
+│   ├── api/
+│   │   └── auth/[...all]/route.ts   # Better-Auth wildcard endpoint handler
+│   ├── dashboard/
+│   │   └── page.tsx                 # Kanban dashboard with SSR session & board query
+│   ├── profile/
+│   │   ├── actions.ts               # Cloudinary upload, CV management & avatar cleanup actions
+│   │   └── page.tsx                 # Profile management (Name, Avatar, CV Vault)
+│   ├── layout.tsx                   # Root layout with hydration mismatch guards
+│   └── page.tsx                     # Landing page with interactive preview tabs
+├── components/
+│   ├── ui/                          # Radix / Shadcn reusable design primitives
+│   ├── create-job-dialog.tsx        # Add new job application modal form
+│   ├── job-application-card.tsx     # Draggable card item with quick moves & deletion
+│   ├── kanban-board.tsx             # Droppable column surface & DnD orchestrator
+│   └── kanban-skeleton.tsx          # Suspense fallback skeleton
+├── lib/
+│   ├── actions/
+│   │   └── job-applications.ts      # CRUD server actions for job cards
+│   ├── auth/
+│   │   ├── auth.ts                  # Server-side Better-Auth instance & session getters
+│   │   └── auth-client.ts           # Client-side Better-Auth methods (useSession, updateUser)
+│   ├── hooks/
+│   │   └── useBoards.ts             # Optimistic drag-and-drop state manager hook
+│   ├── models/
+│   │   ├── board.ts                 # Mongoose Board schema
+│   │   ├── column.ts                # Mongoose Column schema
+│   │   ├── job-application.ts       # Mongoose Job Application schema
+│   │   └── models.types.ts          # Central TypeScript interfaces
+│   ├── cloudinary.ts                # Cloudinary SDK client configuration
+│   ├── db.ts                        # Globally cached Mongoose connection instance
+│   ├── mongodb.ts                   # Globally cached native MongoClient instance
+│   └── init-user-board.ts           # Post-signup automated pipeline initialization
+├── scripts/
+│   └── seed.ts                      # High-throughput mock data seeding script
+└── public/
+    └── hero-images/                 # Static landing page assets & graphics
+```
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ installed
-- MongoDB database (local or cloud)
-- npm, yarn, pnpm, or bun
+- **Node.js**: v18.18 or higher (Node 20+ recommended)
+- **MongoDB**: Active MongoDB Atlas cluster or local MongoDB instance
+- **Cloudinary Account**: Free-tier account from [cloudinary.com](https://cloudinary.com)
 
-### Installation
-
-1. Clone the repository:
+### 1. Clone & Install Dependencies
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/your-username/job-application-tracker.git
 cd job-application-tracker
-```
-
-2. Install dependencies:
-
-```bash
 npm install
 ```
 
-3. Create a `.env.local` file in the root directory:
+### 2. Configure Environment Variables
+
+Create a `.env.local` file in the root directory:
 
 ```env
-MONGODB_URI=your_mongodb_connection_string
+# MongoDB Connection
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/jobright?retryWrites=true&w=majority
+
+# Better-Auth Configuration
+BETTER_AUTH_SECRET=your_generated_random_secret_string
+BETTER_AUTH_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Cloudinary Storage
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
-4. Run the development server:
+> **Note for Production:** Add your production domain to `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL`, and include it in the `trustedOrigins` array inside `lib/auth/auth.ts` to prevent `403 Invalid origin` errors.
+
+---
+
+## 🌱 Database Seeding
+
+The repository includes a dedicated seed script (`scripts/seed.ts`) that populates your MongoDB pipeline with **15 realistic job applications** spread across all Kanban columns (Wish List, Applied, Interviewing, Offer, Rejected).
+
+### How Seeding Works
+
+1. Connects to your MongoDB instance using the cached database connector.
+2. Identifies the user's **Job Hunt** board (or provisions it automatically if not yet created).
+3. Cleans any existing applications for that user to prevent ID collisions.
+4. Distributes items into the correct columns and updates parent array references.
+
+### Running the Seed Script
+
+Run the script by passing your logged-in user's MongoDB `_id`:
+
+```bash
+# Using the npm script with your user ID
+SEED_USER_ID="your_mongodb_user_id_here" npm run seed:jobs
+
+# Or run directly using tsx with environment variables loaded
+SEED_USER_ID="your_mongodb_user_id_here" npx tsx --env-file=.env.local scripts/seed.ts
+```
+
+> **Tip:** You can find your user `_id` in your MongoDB Atlas/Compass `user` collection or directly from the session profile page.
+
+---
+
+## 💻 Development & Production
+
+Run the development server:
 
 ```bash
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 📚 Tutorial: Building the Application
+Build for production:
 
-This section walks you through the key parts of the codebase and how they work together.
-
-### 1. Database Setup (`lib/db.ts`)
-
-The database connection uses a caching pattern to prevent multiple connections in development:
-
-```typescript
-// Connection is cached globally to prevent multiple connections
-let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+```bash
+npm run build
+npm run start
 ```
 
-**Key Concepts:**
+---
 
-- Global caching prevents connection issues during hot reloads
-- Connection reuse improves performance
-- Error handling ensures graceful failures
+## 🏛️ Architecture & Implementation Notes
 
-### 2. Data Models (`lib/models/`)
+### 1. Cloud-Native Media Management
 
-The application uses three main models with relationships:
+- **Zero Base64 in Database**: Raw Base64 binary strings are never stored in user documents. MongoDB stores only the secure Cloudinary HTTPS URL, file name, byte size, and `avatarPublicId`.
+- **Automatic Asset Garbage Collection**: When updating an avatar, `uploadAvatarAction` queries the user record, identifies the previous image public ID, and calls `cloudinary.uploader.destroy(oldPublicId, { invalidate: true })` to delete the old asset from `jobright/avatars` and flush CDN caches.
+- **Raw Document Streaming**: Resumes are uploaded using `resource_type: "raw"` to `jobright/cvs` to prevent PDF corruption and ensure direct file downloads using the HTML5 `download` attribute.
 
-**Board Model** (`board.ts`):
+### 2. Database Connection Pooling
 
-- Represents a user's Jobright board
-- Contains references to columns
-- One board per user
+Serverless platforms create new instances on demand. `lib/db.ts` (Mongoose) and `lib/mongodb.ts` (native driver for Better-Auth) leverage `globalThis` connection caching to reuse active sockets across Server Actions and route handlers.
 
-**Column Model** (`column.ts`):
+### 3. Drag-and-Drop Order Spacing Algorithm
 
-- Represents Kanban columns (Wish List, Applied, Interviewing, etc.)
-- Contains references to job applications
-- Has an `order` field for sorting
+Job cards within columns use a gap-ordering strategy (×100) inside `lib/actions/job-applications.ts`. Inserting a card between positions recalculates index offsets and shifts adjacent entries without triggering re-indexing cascades.
 
-**JobApplication Model** (`job-application.ts`):
+### 4. Hydration & SSR Safety
 
-- Stores individual job application data
-- References both column and board
-- Includes fields like company, position, location, salary, tags, etc.
+- Trigger elements inside `kanban-board.tsx` and `job-application-card.tsx` avoid invalid nested button hierarchies (`<button>` inside `<button>`), satisfying strict HTML5 DOM specifications.
+- Layout-level attributes injected by browser extensions (e.g., Grammarly) are handled cleanly via `suppressHydrationWarning`.
 
-**Relationship Structure:**
+---
 
-```
-Board (1) → (many) Columns → (many) JobApplications
-```
+## 📜 Available Scripts
 
-### 3. Authentication (`lib/auth/auth.ts`)
+| Script | Purpose |
+| :--- | :--- |
+| `npm run dev` | Runs the local development server at `localhost:3000` |
+| `npm run build` | Compiles the production build with type checking |
+| `npm run start` | Starts the production server |
+| `npm run lint` | Runs Next.js ESLint verification |
+| `npm run seed:jobs` | Seeds 15 mock job applications into MongoDB for a user |
 
-Better Auth is configured with MongoDB adapter:
-
-```typescript
-export const auth = betterAuth({
-  database: mongodbAdapter(db, { client }),
-  emailAndPassword: { enabled: true },
-  databaseHooks: {
-    user: {
-      create: {
-        after: async (user) => {
-          // Automatically create a board when user signs up
-          await initializeUserBoard(user.id);
-        },
-      },
-    },
-  },
-});
-```
-
-**Key Features:**
-
-- Email/password authentication
-- Automatic board creation on signup
-- Session management with cookie caching
-
-### 4. Server Actions (`lib/actions/job-applications.ts`)
-
-Server actions handle all data mutations:
-
-**createJobApplication:**
-
-- Validates user session
-- Verifies board and column ownership
-- Calculates order for new job
-- Updates column references
-
-**updateJobApplication:**
-
-- Handles moving jobs between columns
-- Manages order updates with gap strategy (multiples of 100)
-- Shifts other jobs when reordering
-
-**deleteJobApplication:**
-
-- Removes job from database
-- Cleans up column references
-- Revalidates cache
-
-**Key Pattern:**
-
-- All actions check authentication
-- Ownership verification prevents unauthorized access
-- `revalidatePath` ensures UI updates after mutations
-
-### 5. Drag & Drop Implementation (`components/kanban-board.tsx`)
-
-The Kanban board uses `@dnd-kit` for drag and drop:
-
-**Components:**
-
-- `DndContext`: Main drag and drop context
-- `DroppableColumn`: Columns that accept dropped items
-- `SortableJobCard`: Individual job cards that can be dragged
-- `SortableContext`: Manages sortable items within columns
-
-**Drag Flow:**
-
-1. User starts dragging → `handleDragStart` sets active item
-2. User drops → `handleDragEnd` calculates new position
-3. Position calculation handles:
-   - Dropping on column (appends to end)
-   - Dropping on another job (inserts at that position)
-   - Moving within same column (reorders)
-4. `moveJob` hook updates database
-
-**Key Features:**
-
-- Visual feedback during drag (opacity, overlay)
-- Collision detection with `closestCorners`
-- Pointer sensor with activation distance to prevent accidental drags
-
-### 6. Client State Management (`lib/hooks/useBoards.ts`)
-
-Custom hook manages board state and provides mutation functions:
-
-**Responsibilities:**
-
-- Maintains local state synchronized with server
-- Provides `moveJob` function for drag operations
-- Optimistic updates for better UX
-
-### 7. Dashboard Page (`app/dashboard/page.tsx`)
-
-Server component that:
-
-- Fetches user session
-- Loads board data with populated relationships
-- Uses React Suspense for loading states
-- Redirects unauthenticated users
-
-**Data Fetching Pattern:**
-
-```typescript
-const boardDoc = await Board.findOne({ userId, name: "Jobright" }).populate({
-  path: "columns",
-  populate: { path: "jobApplications" },
-});
-```
-
-This single query loads the entire board structure efficiently.
-
-### 8. Seeding the Database (`scripts/seed.ts`)
-
-The seed script populates the database with sample job applications.
-
-**Important Performance Note:**
-
-For the seeding file, **strongly recommend using batch insert** (`await JobApplication.insertMany(applications)`) instead of creating jobs one by one. This reduces the number of round trips to MongoDB and significantly improves performance.
-
-**Current Implementation:**
-The current seed script creates jobs individually in a loop. While this works, it's not optimal for large datasets.
-
-**Recommended Approach:**
-
-```typescript
-// Collect all job applications to create
-const applicationsToCreate = [];
-
-for (const [columnName, jobs] of Object.entries(jobsByColumn)) {
-  const columnId = columnMap[columnName];
-  if (!columnId) continue;
-
-  for (let i = 0; i < jobs.length; i++) {
-    const jobData = jobs[i];
-    applicationsToCreate.push({
-      company: jobData.company,
-      position: jobData.position,
-      // ... other fields
-      columnId: columnId,
-      boardId: board._id,
-      userId: USER_ID,
-      status: columnName.toLowerCase().replace(" ", "-"),
-      order: i,
-    });
-  }
-}
-
-// Batch insert all applications at once
-const createdApplications = await JobApplication.insertMany(
-  applicationsToCreate
-);
-
-// Then update columns with references
-for (const column of columns) {
-  const columnApps = createdApplications.filter(
-    (app) => app.columnId.toString() === column._id.toString()
-  );
-  column.jobApplications = columnApps.map((app) => app._id);
-  await column.save();
-}
-```
-
-npm run seed:jobs
-
-**Benefits:**
-
-- Single database round trip instead of N trips
-- Faster execution (especially with many jobs)
-- Atomic operation reduces partial failures
-- Better for production seeding scenarios
-
-### 9. User Board Initialization (`lib/init-user-board.ts`)
-
-When a user signs up, a default board is created with predefined columns:
-
-- Wish List
-- Applied
-- Interviewing
-- Offer
-- Rejected
-
-This ensures every user starts with a functional board structure.
-
-## 🎯 Key Learning Points
-
-1. **Server Components vs Client Components**: Understanding when to use each
-2. **Server Actions**: Type-safe mutations without API routes
-3. **Database Relationships**: Mongoose populate for efficient queries
-4. **Drag & Drop**: Implementing complex interactions with dnd-kit
-5. **Authentication**: Better Auth integration with database hooks
-6. **State Management**: Combining server state with client state
-7. **Performance**: Batch operations for database efficiency
-
-## 📝 Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run seed:jobs` - Seed database with sample jobs
-
-## 🔐 Environment Variables
-
-Required environment variables:
-
-- `MONGODB_URI` - MongoDB connection string
-
-## 📖 Project Structure
-
-```
-job-application-tracker/
-├── app/                    # Next.js App Router pages
-│   ├── api/               # API routes
-│   ├── dashboard/         # Main dashboard page
-│   └── sign-in/           # Authentication pages
-├── components/            # React components
-│   ├── ui/               # Reusable UI components
-│   └── kanban-board.tsx  # Main Kanban component
-├── lib/
-│   ├── actions/          # Server actions
-│   ├── auth/             # Authentication setup
-│   ├── hooks/            # Custom React hooks
-│   ├── models/           # Mongoose models
-│   └── db.ts             # Database connection
-└── scripts/              # Utility scripts
-    └── seed.ts           # Database seeding
-```
-
+---
 
 ## 📄 License
 
-This project is created for educational purposes as part of a YouTube tutorial series.
+This project was built for educational and portfolio purposes, inspired by the tutorial series on YouTube. Free to use under the **MIT License**.

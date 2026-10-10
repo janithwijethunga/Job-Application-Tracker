@@ -15,14 +15,30 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 import SignOutButton from "./ui/sign-out-btn";
 import { useSession } from "@/lib/auth/auth-client";
 import { User } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
+  const [name, setName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { data: session } = useSession();
 
-  const userInitial =
-    session?.user?.name?.[0]?.toUpperCase() ||
-    session?.user?.email?.[0]?.toUpperCase() ||
-    "U";
+   useEffect(() => {
+      if (session?.user) {
+        setName(session.user.name || "");
+        if (session.user.image) {
+          setAvatarUrl(session.user.image);
+        }
+      }
+    }, [session]);
+
+ const initials = name
+    ? name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "U";
 
   return (
     <nav className="border-b border-gray-200 bg-white">
@@ -59,9 +75,17 @@ export default function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-full outline-none hover:opacity-85 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-white">
-                      {userInitial}
-                    </AvatarFallback>
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <AvatarFallback className="bg-primary text-white">
+                        {initials}
+                      </AvatarFallback>
+                    )}
                   </Avatar>
                 </DropdownMenuTrigger>
 

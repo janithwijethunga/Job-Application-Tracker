@@ -2,7 +2,7 @@ import connectDB from "../lib/db";
 import "@/lib/models";
 import { Board, Column, JobApplication } from "@/lib/models";
 
-const USER_ID = "6ac527bf91c6ffefbb499534";
+const USER_ID = "6ac9efad27be0a5cec2d9301";
 
 const SAMPLE_JOBS = [
   // Wish List
@@ -14,6 +14,7 @@ const SAMPLE_JOBS = [
     description: "Build modern web applications using React and Tailwind CSS",
     jobUrl: "https://example.com/jobs/1",
     salary: "$120k - $150k",
+    notes: "This is a dream job for me. I really want to work here.",
   },
   {
     company: "Stripe",
@@ -245,6 +246,7 @@ async function seed() {
           userId: USER_ID,
           status: columnName.toLowerCase().replace(" ", "-"),
           order: i,
+          notes: jobData.notes,
         });
 
         column.jobApplications.push(jobApplication._id);

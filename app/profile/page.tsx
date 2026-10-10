@@ -22,14 +22,17 @@ import {
   Loader2,
   Compass,
 } from "lucide-react";
-import { deleteCVAction, getCVAction, uploadCVAction } from "./cv-actions";
+import {
+  uploadAvatarAction,
+  uploadCVAction,
+  deleteCVAction,
+  getCVAction,
+} from "./actions";
 
 export default function ProfilePage() {
-  // 1. Auth hooks
   const { data: session, isPending } = useSession();
   const router = useRouter();
 
-  // 2. All State Hooks
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -38,7 +41,7 @@ export default function ProfilePage() {
     name: string;
     size: string;
     uploadedAt: string;
-    data: string;
+    url: string;
   } | null>(null);
   const cvInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,12 +50,10 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // CV action loaders
   const [isLoadingCv, setIsLoadingCv] = useState(true);
   const [isUploadingCv, setIsUploadingCv] = useState(false);
   const [isDeletingCv, setIsDeletingCv] = useState(false);
 
-  // 3. Effects
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/sign-in");
@@ -69,7 +70,6 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  // Fetch initial CV on mount
   useEffect(() => {
     async function loadCV() {
       setIsLoadingCv(true);
@@ -79,20 +79,11 @@ export default function ProfilePage() {
       }
       setIsLoadingCv(false);
     }
-    loadCV();
-  }, []);
-
-  useEffect(() => {
     if (session?.user) {
-      setName(session.user.name || "");
-      setEmail(session.user.email || "");
-      if (session.user.image) {
-        setAvatarUrl(session.user.image);
-      }
+      loadCV();
     }
   }, [session]);
 
-  // 4. Safe conditional loading state
   if (isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50/70 dark:bg-neutral-950">
@@ -101,43 +92,34 @@ export default function ProfilePage() {
     );
   }
 
+  // Upload Avatar to Cloudinary
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Enforce a sensible image size limit (e.g., 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Please choose an image under 2MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Please choose an image under 5MB.");
       return;
     }
 
     setIsUploadingAvatar(true);
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Data = reader.result as string;
+    const res = await uploadAvatarAction(formData);
 
-      // Call Better-Auth client to update user image in MongoDB
-      const { error } = await updateUser({
-        image: base64Data,
-      });
+    if (res.success && res.url) {
+      setAvatarUrl(res.url);
+      await updateUser({ image: res.url });
+    } else {
+      alert(res.error || "Failed to upload avatar");
+    }
 
-      if (error) {
-        console.error("Failed to update profile picture:", error);
-        alert("Failed to update profile picture. Please try again.");
-      } else {
-        setAvatarUrl(base64Data);
-      }
-
-      setIsUploadingAvatar(false);
-
-      // Reset input value so re-uploading the same file works
-      if (avatarInputRef.current) avatarInputRef.current.value = "";
-    };
-
-    reader.readAsDataURL(file);
+    setIsUploadingAvatar(false);
+    if (avatarInputRef.current) avatarInputRef.current.value = "";
   }
 
+  // Update Name
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     const trimmedName = name.trim();
@@ -146,64 +128,46 @@ export default function ProfilePage() {
     setIsSaving(true);
     setSaveSuccess(false);
 
-    const { error } = await updateUser({
-      name: trimmedName,
-    });
+    const { error } = await updateUser({ name: trimmedName });
 
     setIsSaving(false);
-
     if (error) {
-      console.error("Failed to update name:", error);
+      console.error(error);
       return;
     }
 
     setName(trimmedName);
     setSaveSuccess(true);
-    setTimeout(() => {
-      (setSaveSuccess(false), 3000);
-    });
+    setTimeout(() => setSaveSuccess(false), 3000);
   }
 
+  // Upload CV to Cloudinary
   async function handleCvUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 4 * 1024 * 1024) {
-      alert("Please upload a file smaller than 4MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Please upload a file smaller than 10MB.");
       return;
     }
 
     setIsUploadingCv(true);
-    const sizeInMb = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Data = reader.result as string;
+    const res = await uploadCVAction(formData);
 
-      const res = await uploadCVAction({
-        name: file.name,
-        size: sizeInMb,
-        data: base64Data,
-      });
+    if (res.success && res.cv) {
+      setCvFile(res.cv);
+    } else {
+      alert(res.error || "Failed to upload CV");
+    }
 
-      if (res.success) {
-        setCvFile({
-          name: file.name,
-          size: sizeInMb,
-          uploadedAt: "Just now",
-          data: base64Data,
-        });
-      } else {
-        alert(res.error || "Failed to upload CV");
-      }
-
-      setIsUploadingCv(false);
-      if (cvInputRef.current) cvInputRef.current.value = "";
-    };
-
-    reader.readAsDataURL(file);
+    setIsUploadingCv(false);
+    if (cvInputRef.current) cvInputRef.current.value = "";
   }
 
+  // Delete CV
   async function handleDeleteCv() {
     if (!confirm("Are you sure you want to delete your stored CV?")) return;
 
@@ -231,8 +195,7 @@ export default function ProfilePage() {
   const jobPortals = [
     {
       name: "LinkedIn Jobs",
-      description:
-        "Direct outreach, recruiter inboxes, and professional networking",
+      description: "Direct outreach, recruiter inboxes, and professional networking",
       url: "https://www.linkedin.com/jobs",
       badge: "Networking",
     },
@@ -267,10 +230,11 @@ export default function ProfilePage() {
                 src="/hero-images/profilecover.png"
                 alt="Profile Cover"
                 fill
+                sizes="(max-width: 768px) 100vw, 1024px"
                 className="object-cover object-center"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-black/30" />
+              <div className="absolute inset-0 bg-linear-to-t from-neutral-950 via-neutral-950/20 to-black/30" />
 
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                 <Link
@@ -300,7 +264,6 @@ export default function ProfilePage() {
                     )}
                   </Avatar>
 
-                  {/* Camera Trigger / Spinner */}
                   <button
                     type="button"
                     onClick={() => avatarInputRef.current?.click()}
@@ -314,7 +277,6 @@ export default function ProfilePage() {
                       <Camera className="h-3.5 w-3.5" />
                     )}
                   </button>
-
                   <input
                     ref={avatarInputRef}
                     type="file"
@@ -338,10 +300,10 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Main Form & CV Grid */}
+      {/* Main Grid: Account Info + CV */}
       <div className="container mx-auto mt-8 max-w-5xl px-4 sm:px-6">
         <div className="grid gap-6 md:grid-cols-2">
-          {/* LEFT: Account Credentials (Name with Inline Save & Email) */}
+          {/* Account Credentials */}
           <Card className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-neutral-800 dark:bg-neutral-900">
             <div className="mb-4">
               <h2 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -414,7 +376,7 @@ export default function ProfilePage() {
             </form>
           </Card>
 
-          {/* RIGHT: Curriculum Vitae (CV) Section */}
+          {/* Cloudinary-Powered CV Storage */}
           <Card className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-neutral-800 dark:bg-neutral-900">
             <div className="mb-4 flex items-center justify-between">
               <div>
@@ -436,7 +398,7 @@ export default function ProfilePage() {
               <div className="flex h-36 flex-col items-center justify-center rounded-xl border border-dashed border-primary/50 bg-primary/5">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 <p className="mt-2 text-xs font-medium text-primary">
-                  Saving CV to database...
+                  Uploading to Cloudinary...
                 </p>
               </div>
             ) : cvFile ? (
@@ -458,11 +420,19 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button className="h-9 flex-1 gap-1.5 rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90">
-                    <a href={cvFile.data} download={cvFile.name}>
-                      Download My CV
+                  <Button
+                    
+                    className="h-9 flex-1 gap-1.5 rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90"
+                  >
+                    <a
+                      href={cvFile.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download={cvFile.name}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download Stored CV
                     </a>
-                    <Download className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="outline"
@@ -500,7 +470,7 @@ export default function ProfilePage() {
                   Click to upload your CV
                 </p>
                 <p className="mt-1 text-[11px] text-slate-400">
-                  PDF or DOCX up to 4MB
+                  PDF or DOCX up to 10MB
                 </p>
               </div>
             )}

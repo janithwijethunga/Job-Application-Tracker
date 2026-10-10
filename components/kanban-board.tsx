@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Mic,
   MoreVertical,
-  Plus,
   Trash2,
   XCircle,
 } from "lucide-react";
@@ -18,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import CreateJobApplicationDialog from "./create-job-dialog";
-import { Button } from "./ui/button";
 import {
   closestCorners,
   DndContext,
@@ -37,7 +35,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CSS } from "@dnd-kit/utilities";
 
 interface KanbanBoardProps {
@@ -90,11 +88,13 @@ function DroppableColumn({
   config,
   boardId,
   sortedColumns,
+  isMounted,
 }: {
   column: Column;
   config: ColConfig;
   boardId: string;
   sortedColumns: Column[];
+  isMounted: boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: column._id,
@@ -102,6 +102,7 @@ function DroppableColumn({
       type: "column",
       columnId: column._id,
     },
+    disabled: !isMounted,
   });
 
   const sortedJobs =
@@ -109,7 +110,7 @@ function DroppableColumn({
 
   return (
     <div
-      ref={setNodeRef}
+      ref={isMounted ? setNodeRef : undefined}
       className={`flex w-80 shrink-0 flex-col rounded-2xl border transition-all duration-200 ${
         isOver
           ? "border-primary/50 bg-primary/5 shadow-sm ring-2 ring-primary/20 dark:border-primary/50 dark:bg-primary/10"
@@ -132,14 +133,9 @@ function DroppableColumn({
         </div>
 
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
+          <DropdownMenuTrigger className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-200/60 hover:text-slate-700 focus:outline-none dark:hover:bg-neutral-800 dark:hover:text-neutral-200">
+            <MoreVertical className="h-4 w-4" />
+            <span className="sr-only">Column actions</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">
@@ -150,20 +146,31 @@ function DroppableColumn({
         </DropdownMenu>
       </div>
 
-      {/* Cards Scrollable Body */}
+      {/* Cards Body */}
       <div className="flex flex-1 flex-col gap-2.5 p-3">
-        <SortableContext
-          items={sortedJobs.map((job) => job._id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {sortedJobs.map((job) => (
-            <SortableJobCard
-              key={job._id}
-              job={{ ...job, columnId: job.columnId || column._id }}
-              columns={sortedColumns}
-            />
-          ))}
-        </SortableContext>
+        {isMounted ? (
+          <SortableContext
+            items={sortedJobs.map((job) => job._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {sortedJobs.map((job) => (
+              <SortableJobCard
+                key={job._id}
+                job={{ ...job, columnId: job.columnId || column._id }}
+                columns={sortedColumns}
+              />
+            ))}
+          </SortableContext>
+        ) : (
+          sortedJobs.map((job) => (
+            <div key={job._id}>
+              <JobApplicationCard
+                job={{ ...job, columnId: job.columnId || column._id }}
+                columns={sortedColumns}
+              />
+            </div>
+          ))
+        )}
 
         {sortedJobs.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 py-10 text-center dark:border-neutral-800">
@@ -177,10 +184,7 @@ function DroppableColumn({
         )}
 
         <div className="mt-1">
-          <CreateJobApplicationDialog
-            columnId={column._id}
-            boardId={boardId}
-          />
+          <CreateJobApplicationDialog columnId={column._id} boardId={boardId} />
         </div>
       </div>
     </div>
@@ -227,8 +231,13 @@ function SortableJobCard({
 }
 
 export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
+  const [mounted, setMounted] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const { columns, moveJob } = useBoard(board);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const sortedColumns =
     columns?.slice().sort((a, b) => a.order - b.order) || [];
@@ -238,7 +247,7 @@ export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
       activationConstraint: {
         distance: 5,
       },
-    })
+    }),
   );
 
   async function handleDragStart(event: DragStartEvent) {
@@ -290,13 +299,13 @@ export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
       newOrder = jobsInTarget.length;
     } else if (targetJob) {
       const targetJobColumn = sortedColumns.find((col) =>
-        col.jobApplications?.some((j) => j._id === targetJob._id)
+        col.jobApplications?.some((j) => j._id === targetJob._id),
       );
       targetColumnId = targetJob.columnId || targetJobColumn?._id || "";
       if (!targetColumnId) return;
 
       const targetColumnObj = sortedColumns.find(
-        (col) => col._id === targetColumnId
+        (col) => col._id === targetColumnId,
       );
       if (!targetColumnObj) return;
 
@@ -309,11 +318,11 @@ export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
         allJobsInTargetOriginal.filter((j) => j._id !== activeId) || [];
 
       const targetIndexInOriginal = allJobsInTargetOriginal.findIndex(
-        (j) => j._id === overId
+        (j) => j._id === overId,
       );
 
       const targetIndexInFiltered = allJobsInTargetFiltered.findIndex(
-        (j) => j._id === overId
+        (j) => j._id === overId,
       );
 
       if (targetIndexInFiltered !== -1) {
@@ -342,32 +351,39 @@ export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
     .flatMap((col) => col.jobApplications || [])
     .find((job) => job._id === activeId);
 
+  const columnList = (
+    <div className="flex items-start gap-5 overflow-x-auto pb-6 pt-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200 dark:scrollbar-thumb-neutral-800">
+      {sortedColumns.map((col, index) => {
+        const config = COLUMN_CONFIG[index % COLUMN_CONFIG.length];
+        return (
+          <DroppableColumn
+            key={col._id}
+            column={col}
+            config={config}
+            boardId={board._id}
+            sortedColumns={sortedColumns}
+            isMounted={mounted}
+          />
+        );
+      })}
+    </div>
+  );
+
+  // During SSR and initial client hydration, render static HTML without dnd-kit dynamic listeners/aria attributes
+  if (!mounted) {
+    return <div className="relative">{columnList}</div>;
+  }
+
   return (
     <DndContext
+      id={`kanban-dnd-${board._id}`}
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="relative">
-        {/* Horizontal Kanban Scroll Container */}
-        <div className="flex items-start gap-5 overflow-x-auto pb-6 pt-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200 dark:scrollbar-thumb-neutral-800">
-          {sortedColumns.map((col, index) => {
-            const config = COLUMN_CONFIG[index % COLUMN_CONFIG.length];
-            return (
-              <DroppableColumn
-                key={col._id}
-                column={col}
-                config={config}
-                boardId={board._id}
-                sortedColumns={sortedColumns}
-              />
-            );
-          })}
-        </div>
-      </div>
+      <div className="relative">{columnList}</div>
 
-      {/* Lifted Drag Overlay */}
       <DragOverlay dropAnimation={null}>
         {activeJob ? (
           <div className="rotate-2 cursor-grabbing shadow-2xl ring-2 ring-primary/25">

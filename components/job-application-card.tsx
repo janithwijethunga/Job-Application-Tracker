@@ -168,15 +168,12 @@ export default function JobApplicationCard({
               )}
 
               <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-slate-400 opacity-80 transition-opacity hover:bg-slate-100 hover:text-slate-800 group-hover:opacity-100 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
+                <DropdownMenuTrigger
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 opacity-80 transition-opacity hover:bg-slate-100 hover:text-slate-800 group-hover:opacity-100 focus:outline-none dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Open menu</span>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="end" className="w-48 text-xs">
@@ -237,7 +234,7 @@ export default function JobApplicationCard({
               {job.location && (
                 <div className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                   <MapPin className="h-3 w-3" />
-                  <span className="truncate max-w-[120px]">{job.location}</span>
+                  <span className="truncate max-w-30">{job.location}</span>
                 </div>
               )}
               {job.notes && (
