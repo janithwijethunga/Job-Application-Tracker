@@ -310,7 +310,7 @@ job-application-tracker/
 ---
  
 **[🌐 Live Demo](https://jobright.janithwijethunga.me)** ·
-**[💻 Source Code](https://github.com/janithwijethunga/Job-Application-Tracker)** ·
+
 
 
 ### Example Job Application
@@ -393,5 +393,7 @@ Building modern web applications with a focus on clean interfaces, maintainable 
 ### 🚀 Track Smarter. Stay Organized. Land Your Next Opportunity.
 
 **Built with Next.js, React, TypeScript, and MongoDB.**
+
+**[💻 My Portfolio ](https://janithwijethunga.me)** ·
 
 </div>
