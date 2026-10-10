@@ -400,7 +400,7 @@ export default function ProfilePage() {
               <div className="flex h-36 flex-col items-center justify-center rounded-xl border border-dashed border-primary/50 bg-primary/5">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 <p className="mt-2 text-xs font-medium text-primary">
-                  Uploading to Cloudinary...
+                  Uploading...
                 </p>
               </div>
             ) : cvFile ? (
