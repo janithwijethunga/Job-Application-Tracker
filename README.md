@@ -348,7 +348,7 @@ Create a `.env.local` file in the project root.
 
 ```dotenv
 
-MONGODB_URI=
+MONGODB_URI= 
 BETTER_AUTH_SECRET=
 BETTER_AUTH_URL=
 CLOUDINARY_CLOUD_NAME=
@@ -356,20 +356,6 @@ CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 
 ```
-
-## 👨‍💻 Author
-
-<div align="center">
-
-### Janith Wijethunga
-
-**Software Developer | Full-Stack Development**
-
-Building modern web applications with a focus on clean interfaces, maintainable code, and practical user experiences.
-
-[![GitHub](https://img.shields.io/badge/GitHub-janithwijethunga-181717?style=for-the-badge&logo=github)](https://github.com/janithwijethunga)
-
-</div>
 
 ---
 
@@ -383,6 +369,24 @@ If you find Jobright useful, consider supporting the project by:
 - Sharing the project with other developers.
 
 Your support helps improve the project and encourages continued development.
+
+---
+
+## 👨‍💻 Author
+
+<div align="center">
+
+### Janith Wijethunga 
+
+**Software Developer | Full-Stack Development**
+
+Building modern web applications with a focus on clean interfaces, maintainable code, and practical user experiences.
+
+[![GitHub](https://img.shields.io/badge/GitHub-janithwijethunga-181717?style=for-the-badge&logo=github)](https://github.com/janithwijethunga)
+
+</div>
+
+
 
 <div align="center">
 
